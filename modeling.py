@@ -3,7 +3,7 @@ from typing import List, Optional, Dict, Any, Union
 
 import torch
 from tqdm import tqdm
-from transformers import GPT2Tokenizer, PreTrainedTokenizer, PreTrainedModel
+from transformers import GPT2Tokenizer, PreTrainedTokenizer, PreTrainedModel, PreTrainedTokenizerFast
 
 from generation import SelfDebiasingGPT2LMHeadModel
 from utils import DatasetEntry
@@ -146,7 +146,7 @@ class ModelWrapper(ABC):
         :param use_cuda: whether to use CUDA
         """
         self._device = "cuda" if torch.cuda.is_available() and use_cuda else "cpu"
-        self._tokenizer = None  # type: Optional[PreTrainedTokenizer]
+        self._tokenizer = None  # type: Optional[PreTrainedTokenizerFast]
         self._model = None  # type: Optional[PreTrainedModel]
 
     def query_model(self, input_text: str) -> torch.FloatTensor:
@@ -187,7 +187,12 @@ class GPT2Wrapper(ModelWrapper):
         :param use_cuda: whether to use CUDA
         """
         super().__init__(use_cuda=use_cuda)
-        self._tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+        self._tokenizer = PreTrainedTokenizerFast.from_pretrained(model_name,
+                                                                  bos_token='</s>',
+                                                                  eos_token='</s>',
+                                                                  unk_token='<unk>',
+                                                                  pad_token='<pad>',
+                                                                  mask_token='<mask>')
         self._model = SelfDebiasingGPT2LMHeadModel.from_pretrained(model_name)  # type: SelfDebiasingGPT2LMHeadModel
         if use_cuda:
             self._model.parallelize()

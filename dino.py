@@ -116,7 +116,7 @@ if __name__ == '__main__':
 
     args_file = os.path.join(args.output_dir, f'{task_specification["task_name"]}-args.json')
     with open(args_file, 'w', encoding='utf8') as fh:
-        fh.write(json.dumps(vars(args), indent=4))
+        fh.write(json.dumps(vars(args), indent=4, ensure_ascii=False))
 
     wrapper = GPT2Wrapper(model_name=args.model_name, use_cuda=not args.no_cuda)
     inputs = read_inputs(args.input_file, args.input_file_type) if args.input_file else None
