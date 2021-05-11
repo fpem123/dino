@@ -130,19 +130,32 @@
                 table.removeChild(table.lastChild);
             }
 
+            const table_head = table.insertRow();
+            const head_1 = table_head.insertCell(0);
+            const head_2 = table_head.insertCell(1);
+            const head_3 = table_head.insertCell(2);
+            
+            table_head.style.textAlign = "center";
+            head_1.style.width = "10%";
+            head_2.style.width = '80%';
+            head_2.style.height = '60pt';
+            head_3.style.width = "10%";
+            
+            head_1.innerHTML = 'Index';
+            head_2.innerHTML = 'DINO text';
+            head_3.innerHTML = 'label';
+
             for (i in data) {
                 const row = table.insertRow();
                 const idx = row.insertCell(0);
                 const text = row.insertCell(1);
+                const label = row.insertCell(2);
 
-                idx.style.width = "10%";
-                text.style.width = '80%';
                 text.style.height = '60pt';
 
                 idx.innerHTML = i;
-                text.innerHTML = data[i];
-
-                console.log(data[i]);
+                text.innerHTML = `${data[i]['text_a']}<br>&nbsp;↳&nbsp;&nbsp;${data[i]['text_b']}`;
+                label.innerHTML = data[i]['label'];
             }
 
             clearInterval(timer);
@@ -191,6 +204,9 @@
                     <li>soeque1 님의 KoGPT2 를 이용한 Datasets from Instructions (DINO 🦕)를 사용해볼 수 있습니다.</li>
                     <li>Text에 생성될 문장의 base 가 될 글을 입력합니다.</li>
                     <li>ADD 버튼으로 문장을 추가할 수 있습니다.</li>
+                    <li>Label 0: 다른 주제 문장</li>
+                    <li>Label 1: 유사 의미 문장</li>
+                    <li>Label 2: 동일 의미 문장</li>
                 </ul>
             </div>
 
@@ -200,7 +216,7 @@
                 <h3><label>Example</label></h3>
                 <h5><label>Input</label></h5>
                 <label>&nbsp;&nbsp;text: 여러분 힘내<br>
-                <h5><label>News comment</label></h5>
+                <h5><label>DINO text table</label></h5>
                 <img src="../static/sample.png" width="80%">
             </div>
 
@@ -220,7 +236,7 @@
 
             <div class="result">
                 <h3><label>Result</label>&nbsp;&nbsp;&nbsp;<label id="timer"></label></h3>
-                <h5><label>Script</label></h5>
+                <h5><label>DINO text table</label></h5>
                 <!-- Generate result table -->
                 <table id="generated" width="100%"></table>
             </div>
