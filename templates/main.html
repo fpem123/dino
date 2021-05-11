@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>GPT-2 Korean new comment</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<script type="text/javascript">
+    let time_obj = undefined;
+    let flag = undefined;
+
+    window.onload = () => {
+        time_obj = document.getElementById("timer");
+        flag = false;
+    }
+
+    function double_submit_check() {
+        if (flag) {
+            console.log("double");
+            return true;
+        }
+        else {
+            flag = true;
+
+            return false;
+        }
+    }
+
+    function send_req() {
+        if (double_submit_check()){
+            return ;
+        }
+
+        const text = document.getElementById("text").value;
+
+        if (text == '') {
+            document.getElementById('warning').innerText = 'Please fill text!';
+            flag = false;
+            return ;
+        }
+
+        const formData = new FormData();
+        const url = "/gen";
+        let start = 0;
+
+        formData.append('text', text);
+
+        timer = setInterval(() => {
+            start += 1;
+            time_obj.innerText = `${start / 10} 's`;
+        }, 100);
+
+        fetch (url, { method: 'POST', body: formData, })
+        .then(response => {
+            if (response.status === 200) {
+                return response.json();
+            } else {
+                clearInterval(timer);
+            }
+        }).catch(err => {
+            clearInterval(timer);
+            flag = false;
+            document.getElementById('warning').innerText = err;
+        }).then(data => {
+            const table = document.getElementById('generated');
+
+            // 기존 내용 삭제
+            while (table.hasChildNodes()) {
+                table.removeChild(table.lastChild);
+            }
+
+            for (i in data) {
+                const row = table.insertRow();
+                const idx = row.insertCell(0);
+                const text = row.insertCell(1);
+
+                idx.style.width = "10%";
+                text.style.width = '80%';
+                text.style.height = '60pt';
+
+                idx.innerHTML = i;
+                text.innerHTML = data[i];
+
+                console.log(data[i]);
+            }
+
+            clearInterval(timer);
+            time_obj.innerText = 'Done!';
+            flag = false;
+        }).catch(err => {
+            clearInterval(timer);
+            flag = false;
+            document.getElementById('warning').innerText = err;
+        });
+    }
+
+</script>
+<body>
+    <div class="styles">
+        <style>
+                #button, #text, select{
+                    border-top-left-radius: 5pt;
+                    border-top-right-radius: 5pt;
+                    border-bottom-left-radius: 5pt;
+                    border-bottom-right-radius: 5pt;
+                }
+
+                #length{
+                    width: 70px;
+                    height: 30px;
+                    }
+
+                #how_many{
+                    width: 40px;
+                    height: 30px;
+                    }
+
+                table {
+                  border-spacing: 10px;
+                  border-collapse: separate;
+                }
+
+        </style>
+    </div>
+    <div class="container">
+        <div class="jumbotron mt-3">
+            <div class="intro">
+                <br>
+                <!-- Project title -->
+                <h1>GPT-2 뉴스 댓글 한국어</h1><br>
+                <a>처음부터 학습한 GPT-2 모델을 이용해 뉴스 댓글을 생성해냅니다.</a><br><br>
+                <a>Fine tuning data : </a><a href="https://www.kaggle.com/junbumlee/kcbert-pretraining-corpus-korean-news-comments" target="_blank">Kaggle</a><br><br>
+            </div>
+
+            <hr width="90%">
+
+            <div class="Notice">
+                <h3>Notice</h3>
+                <ul>
+                    <li>Text에 생성될 문장의 base 가 될 글을 입력합니다.</li>
+                    <li>그리고 생성될 문장의 길이인 length 를 선택합니다.</li>
+                    <li>그리고 몇 개의 문장을 생성할지 how many 를 선택합니다.</li>
+                </ul>
+            </div>
+
+            <br><hr width="90%">
+
+            <div class="sample">
+                <h3><label>Example</label></h3>
+                <h5><label>Input</label></h5>
+                <label>&nbsp;&nbsp;text: 여러분 힘내<br>
+                    &nbsp;&nbsp;Length: 50<br>
+                    &nbsp;&nbsp;How many: 3</label><br><br>
+                <h5><label>News comment</label></h5>
+                <img src="../static/sample.png" width="80%">
+            </div>
+
+            <br><hr width="90%">
+
+            <div class="generate">
+                <h3>Try it!</h3><br>
+                <label>Text: </label>
+                <input type="text" id="text" style="width:40%"><br>
+                <button class="btn btn-primary btn=lg" type="submit" id="button" onclick="send_req();">submit</button><br>
+                <b><label id="warning" style="color:red;"></label></b>
+            </div>
+
+            <br><hr width="90%">
+
+            <div class="result">
+                <h3><label>Result</label>&nbsp;&nbsp;&nbsp;<label id="timer"></label></h3>
+                <h5><label>Script</label></h5>
+                <!-- Generate result table -->
+                <table id="generated" width="100%"></table>
+            </div>
+
+            <br><hr width="50%">
+        </div>
+    </div>
+</body>
+</html>
