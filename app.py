@@ -9,8 +9,8 @@ from queue import Queue, Empty
 from threading import Thread
 
 from modeling import GPT2Wrapper, DinoGenerator, PLACEHOLDER_STR
-from utils import set_seed, read_inputs, DatasetEntry
-from flask import Flask, request, render_template, jsonify
+from utils import set_seed
+from flask import Flask, request, render_template
 import torch
 
 cuda_device = True if torch.cuda.is_available() else False
