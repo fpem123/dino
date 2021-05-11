@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>GPT-2 Korean new comment</title>
+    <title>KoGPT2 DINO</title>
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
@@ -13,10 +13,15 @@
 <script type="text/javascript">
     let time_obj = undefined;
     let flag = undefined;
+    let text_list = undefined;
+    let idx = undefined;
 
     window.onload = () => {
         time_obj = document.getElementById("timer");
+        text_list = document.getElementById("text_list");
         flag = false;
+        idx = 0;
+        add_text();
     }
 
     function double_submit_check() {
@@ -31,12 +36,63 @@
         }
     }
 
+
+    // 텍스트박스 추가
+    function add_text() {
+        let new_text = document.createElement("label");
+
+        new_text.id = `list_${idx}`;
+        new_text.className = "wrapper";
+        new_text.innerHTML = make_input_box();
+        new_text.style.width = "100%"
+
+        let br = document.createElement("br");
+
+        text_list.appendChild(new_text);
+        text_list.appendChild(br);
+    }
+
+
+    // Select 리스트 동적추가 함수
+    function make_input_box(){
+        input_box = `Text: <input type="text" class="text" maxlength="128" style="width:250pt">`;
+
+        idx += 1;
+
+        return input_box;
+    }
+
+
+    // 전처리 옵션항목 제거
+    function remove_text(){
+        if (text_list.childElementCount / 2 > 1) {
+            text_list.removeChild(text_list.lastChild);
+            text_list.removeChild(text_list.lastChild);
+            idx -= 1;
+        }
+    }
+
+
+    function get_texts() {
+        let nodes = text_list.getElementsByClassName("text");
+        let texts = "";
+
+        for (let i=0; i < nodes.length; i++) {
+            let text = nodes[i].value;
+
+            texts += `${text}\n`;
+        }
+
+        return texts;
+    }
+
+
     function send_req() {
         if (double_submit_check()){
             return ;
         }
 
-        const text = document.getElementById("text").value;
+        const text = get_texts();
 
         if (text == '') {
             document.getElementById('warning').innerText = 'Please fill text!';
@@ -103,22 +159,12 @@
 <body>
     <div class="styles">
         <style>
-                #button, #text, select{
+                #button, .text{
                     border-top-left-radius: 5pt;
                     border-top-right-radius: 5pt;
                     border-bottom-left-radius: 5pt;
                     border-bottom-right-radius: 5pt;
                 }
-
-                #length{
-                    width: 70px;
-                    height: 30px;
-                    }
-
-                #how_many{
-                    width: 40px;
-                    height: 30px;
-                    }
 
                 table {
                   border-spacing: 10px;
@@ -132,9 +178,9 @@
             <div class="intro">
                 <br>
                 <!-- Project title -->
-                <h1>GPT-2 뉴스 댓글 한국어</h1><br>
-                <a>처음부터 학습한 GPT-2 모델을 이용해 뉴스 댓글을 생성해냅니다.</a><br><br>
-                <a>Fine tuning data : </a><a href="https://www.kaggle.com/junbumlee/kcbert-pretraining-corpus-korean-news-comments" target="_blank">Kaggle</a><br><br>
+                <h1>KoGPT2 DINO</h1><br>
+                <a>Original repository : <a href="https://github.com/soeque1" target="_blank">soeque1</a> / <a href="https://github.com/soeque1/KoGPT2-DINO" target="_blank">KoGPT2-DINO</a></a><br>
+                <a>My repository: </a><a href="https://github.com/fpem123/KoGPT2-DINO" target="_blank">fpem123 / KoGPT2-DINO</a><br><br>
             </div>
 
             <hr width="90%">
@@ -142,9 +188,9 @@
             <div class="Notice">
                 <h3>Notice</h3>
                 <ul>
+                    <li>soeque1 님의 KoGPT2 를 이용한 Datasets from Instructions (DINO 🦕)를 사용해볼 수 있습니다.</li>
                     <li>Text에 생성될 문장의 base 가 될 글을 입력합니다.</li>
-                    <li>그리고 생성될 문장의 길이인 length 를 선택합니다.</li>
-                    <li>그리고 몇 개의 문장을 생성할지 how many 를 선택합니다.</li>
+                    <li>ADD 버튼으로 문장을 추가할 수 있습니다.</li>
                 </ul>
             </div>
 
@@ -154,8 +200,6 @@
                 <h3><label>Example</label></h3>
                 <h5><label>Input</label></h5>
                 <label>&nbsp;&nbsp;text: 여러분 힘내<br>
-                    &nbsp;&nbsp;Length: 50<br>
-                    &nbsp;&nbsp;How many: 3</label><br><br>
                 <h5><label>News comment</label></h5>
                 <img src="../static/sample.png" width="80%">
             </div>
@@ -164,8 +208,10 @@
 
             <div class="generate">
                 <h3>Try it!</h3><br>
-                <label>Text: </label>
-                <input type="text" id="text" style="width:40%"><br>
+                <label id="text_list" style="width:350px;"></label>
+                <label>&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                <button class="btn btn-primary btn=lg" type="submit" id="add_btn" onclick="add_text();">ADD</button>
+                <button class="btn btn-primary btn=lg" type="submit" id="del_btn" onclick="remove_text();">DEL</button><br><br>
                 <button class="btn btn-primary btn=lg" type="submit" id="button" onclick="send_req();">submit</button><br>
                 <b><label id="warning" style="color:red;"></label></b>
             </div>
